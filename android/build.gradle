@@ -43,5 +43,5 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    api 'com.facebook.android:facebook-share:5.0.3'
+    api 'com.facebook.android:facebook-share:5.5.1'
 }
