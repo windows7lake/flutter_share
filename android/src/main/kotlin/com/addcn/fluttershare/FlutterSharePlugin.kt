@@ -300,7 +300,7 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     activity.applicationContext,
-                    "com.addcn.fluttershare.fileprovider",
+                    "${activity.packageName}.fileprovider",
                     file
                 )
             } else {
