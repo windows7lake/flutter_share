@@ -31,7 +31,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.*
-import java.lang.Exception
 import java.lang.ref.WeakReference
 import java.net.URL
 
@@ -63,6 +62,7 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     // depending on the user's project. onAttachedToEngine or registerWith must both be defined
     // in the same class.
     companion object {
+        private var resultOutput: Result? = null
         private var callbackManager: CallbackManager? = null
         private var shareDialog: ShareDialog? = null
 
@@ -72,14 +72,32 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             shareDialog?.registerCallback(callbackManager, object : FacebookCallback<Sharer.Result> {
                 override fun onSuccess(result: Sharer.Result?) {
                     Log.e("shareInit", "onSuccess: $result")
+                    val map = HashMap<String, Any>()
+                    map["state"] = 0
+                    map["msg"] = result.toString()
+                    ThreadManager.getMainHandler()?.post {
+                        resultOutput?.success(map)
+                    }
                 }
 
                 override fun onCancel() {
                     Log.e("shareInit", "onCancel: ")
+                    val map = HashMap<String, Any>()
+                    map["state"] = 2
+                    map["msg"] = "Cancel"
+                    ThreadManager.getMainHandler()?.post {
+                        resultOutput?.success(map)
+                    }
                 }
 
                 override fun onError(error: FacebookException?) {
                     Log.e("shareInit", "onError: $error")
+                    val map = HashMap<String, Any>()
+                    map["state"] = 1
+                    map["msg"] = error.toString()
+                    ThreadManager.getMainHandler()?.post {
+                        resultOutput?.success(map)
+                    }
                 }
             })
         }
@@ -97,6 +115,7 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+        resultOutput = result
         if (call.method == "share") {
             val platform = call.argument<String>("platform")
             val text = call.argument<String>("text")
@@ -109,8 +128,6 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             if (platform == "SharePlatform.Facebook") {
                 shareToFacebook(text, image)
             }
-
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
         } else {
             result.notImplemented()
         }
@@ -144,6 +161,10 @@ public class FlutterSharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private fun shareToLine(text: String?, image: String?) {
+        val map = HashMap<String, Any>()
+        map["state"] = 0
+        map["msg"] = "success"
+        resultOutput?.success(map)
         if (!text.isNullOrEmpty()) {
             shareTextLine(activityRef?.get(), text)
             return

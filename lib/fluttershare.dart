@@ -10,12 +10,23 @@ class FlutterShare {
     return version;
   }
 
-  static Future<void> share(ShareModel shareModel) async {
-    await _channel.invokeMethod("share", {
+  /// response: { "state": 0, "msg": "success" }
+  /// state: 0. success   1. fail   2. cancel
+  static Future<dynamic> share(
+    ShareModel shareModel, {
+    Function(int, String) result,
+  }) {
+    Future<dynamic> callback = _channel.invokeMethod("share", {
       "platform": shareModel.platform.toString(),
       "text": shareModel.text,
       "image": shareModel.image,
     });
+    callback.then((dynamic response) {
+      if (result != null) {
+        result(response["state"], response["msg"]);
+      }
+    });
+    return callback;
   }
 }
 
