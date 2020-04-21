@@ -18,6 +18,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(await Fluttershare.platformVersion, '42');
+    expect(await FlutterShare.platformVersion, '42');
   });
 }
