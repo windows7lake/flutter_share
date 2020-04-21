@@ -1,0 +1,41 @@
+PODS:
+  - FBSDKCoreKit (6.4.0):
+    - FBSDKCoreKit/Basics (= 6.4.0)
+    - FBSDKCoreKit/Core (= 6.4.0)
+  - FBSDKCoreKit/Basics (6.4.0)
+  - FBSDKCoreKit/Core (6.4.0):
+    - FBSDKCoreKit/Basics
+  - FBSDKShareKit (6.4.0):
+    - FBSDKShareKit/Share (= 6.4.0)
+  - FBSDKShareKit/Share (6.4.0):
+    - FBSDKCoreKit (~> 6.4.0)
+  - Flutter (1.0.0)
+  - fluttershare (0.0.1):
+    - FBSDKCoreKit
+    - FBSDKShareKit
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - fluttershare (from `.symlinks/plugins/fluttershare/ios`)
+
+SPEC REPOS:
+  trunk:
+    - FBSDKCoreKit
+    - FBSDKShareKit
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  fluttershare:
+    :path: ".symlinks/plugins/fluttershare/ios"
+
+SPEC CHECKSUMS:
+  FBSDKCoreKit: 7bea330627be2601a9079413c615313746aa9f7c
+  FBSDKShareKit: 8d39510d72b9cc30f6000d0b0a74fc620b6b74ee
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  fluttershare: 52a98d05aeb7d932ef62d918439544223dc958a8
+
+PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
+
+COCOAPODS: 1.8.3

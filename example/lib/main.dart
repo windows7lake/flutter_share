@@ -48,7 +48,26 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: GestureDetector(
+            onTap: () async {
+              var model = ShareModel(platform: SharePlatform.Facebook, image: "", text: "https://www.100.com.tw/works");
+              var result = await Fluttershare.share(model);
+              if(result["state"] != 0){
+                print(result["msg"]);
+              } else {
+                print("分享成功");
+              }
+            },
+            child: Container(
+              width: 100,
+              height: 40,
+              alignment: Alignment.center,
+              color: Colors.red,
+              child: Text(
+                  "分享"
+              ),
+            ),
+          ),
         ),
       ),
     );
