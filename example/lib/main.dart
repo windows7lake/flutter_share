@@ -12,32 +12,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await Fluttershare.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
@@ -48,25 +25,23 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: GestureDetector(
-            onTap: () async {
-              var model = ShareModel(platform: SharePlatform.Facebook, image: "", text: "https://www.100.com.tw/works");
-              var result = await Fluttershare.share(model);
-              if(result["state"] != 0){
-                print(result["msg"]);
-              } else {
-                print("分享成功");
-              }
+          child: FlatButton(
+            onPressed: () {
+              FlutterShare.share(
+                ShareModel(
+                  platform: SharePlatform.Facebook,
+//                text: "https://www.100.com.tw/",
+//                image: "https://www.baidu.com/img/bd_logo1.png",
+                  image:
+                  "https://cp4.100.com.tw/images/works/202004/15/api_1912317_1586915223_7O9RQuMFAV.jpg!c290x290-v2.webp",
+//                image: "/data/user/0/com.addcn.fluttershare_example/cache/temp_650295255636641695.png",
+                ),
+                result: (state, msg) {
+                  print("== state: $state == msg: $msg");
+                },
+              );
             },
-            child: Container(
-              width: 100,
-              height: 40,
-              alignment: Alignment.center,
-              color: Colors.red,
-              child: Text(
-                  "分享"
-              ),
-            ),
+            child: Text("Share"),
           ),
         ),
       ),
