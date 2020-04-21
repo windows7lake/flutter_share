@@ -1,4 +1,4 @@
-#import "FlutterSharePlugin.h"
+#import "FluttersharePlugin.h"
 #if __has_include(<fluttershare/fluttershare-Swift.h>)
 #import <fluttershare/fluttershare-Swift.h>
 #else
@@ -8,7 +8,7 @@
 #import "fluttershare-Swift.h"
 #endif
 
-@implementation FlutterSharePlugin
+@implementation FluttersharePlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
   [SwiftFluttersharePlugin registerWithRegistrar:registrar];
 }

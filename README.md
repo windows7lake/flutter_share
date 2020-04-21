@@ -1,6 +1,6 @@
 # fluttershare
 
-A share Flutter plugin for facebook and Line
+A new Flutter plugin.
 
 ## Getting Started
 

@@ -5,9 +5,9 @@
 Pod::Spec.new do |s|
   s.name             = 'fluttershare'
   s.version          = '0.0.1'
-  s.summary          = 'A share Flutter plugin for facebook and Line'
+  s.summary          = 'A new Flutter plugin.'
   s.description      = <<-DESC
-A share Flutter plugin for facebook and Line
+A new Flutter plugin.
                        DESC
   s.homepage         = 'http://example.com'
   s.license          = { :file => '../LICENSE' }
