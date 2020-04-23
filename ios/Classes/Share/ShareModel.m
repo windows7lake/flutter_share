@@ -41,7 +41,11 @@
 }
 
 -(UIImage *)downloadImageResouce:(NSString *)url{
-    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString: url]];
+    NSString * loadUrl = url;
+    if([loadUrl hasSuffix:@".webp"]){
+       loadUrl = [loadUrl stringByReplacingOccurrencesOfString:@".webp" withString:@".png"];
+    }
+    NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString: loadUrl]];
     return [UIImage imageWithData:data];
 }
 
