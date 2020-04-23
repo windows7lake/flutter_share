@@ -19,8 +19,8 @@ class FlutterShare {
       }) {
     Future<dynamic> callback = _channel.invokeMethod("share", {
       "platform": shareModel.platform.toString(),
-      "text": shareModel.text,
-      "image": shareModel.image,
+      "text": shareModel.text == null ? "" : shareModel.text,
+      "image": shareModel.image == null ? "" : shareModel.image,
     });
     callback.then((dynamic response) {
       if (result != null) {
