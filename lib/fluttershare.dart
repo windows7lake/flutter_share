@@ -38,8 +38,8 @@ class ShareModel {
 
   ShareModel({
     this.platform,
-    this.text,
-    this.image,
+    this.text = "",
+    this.image = "",
   });
 }
 
