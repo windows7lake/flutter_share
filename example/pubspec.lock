@@ -75,14 +75,12 @@ packages:
     source: sdk
     version: "0.0.0"
   fluttershare:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "0398fc60cbeb7d6a2ad649e91bf9fc65d67d9337"
-      url: "https://github.com/windows7lake/flutter_share.git"
-    source: git
-    version: "0.0.1"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.0.2"
   image:
     dependency: transitive
     description:
