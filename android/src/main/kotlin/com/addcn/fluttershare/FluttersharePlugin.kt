@@ -77,7 +77,8 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         activityRef = WeakReference<Activity>(flutterActivity)
     }
 
-    private fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent) {
+    private fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+        if (intent == null) return
         callbackManager?.onActivityResult(requestCode, resultCode, intent)
     }
 
