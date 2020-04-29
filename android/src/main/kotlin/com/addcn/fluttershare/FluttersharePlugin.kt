@@ -64,6 +64,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         @JvmStatic
         fun registerWith(registrar: Registrar) {
             val instance = FluttersharePlugin()
+            instance.onAttachedToEngine(registrar.context(), registrar.messenger())
             instance.setActivity(registrar.activity())
             instance.shareFacebookInit(registrar.activity())
             registrar.addActivityResultListener { requestCode, resultCode, intent ->
