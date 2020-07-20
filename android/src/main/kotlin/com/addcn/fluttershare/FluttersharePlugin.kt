@@ -13,6 +13,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.facebook.CallbackManager
@@ -36,12 +37,14 @@ import java.io.*
 import java.lang.ref.WeakReference
 import java.net.URL
 
+const val TAG: String = "FlutterSharePlugin"
 
 /** FlutterSharePlugin */
 public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private var channel: MethodChannel? = null
     private var activityRef: WeakReference<Activity>? = null
+    private var contextRef: WeakReference<Context>? = null
     private var callbackManager: CallbackManager? = null
     private var resultOutput: Result? = null
     private var shareDialog: ShareDialog? = null
@@ -84,6 +87,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private fun onAttachedToEngine(context: Context, binaryMessenger: BinaryMessenger) {
+        contextRef = WeakReference<Context>(context)
         channel = MethodChannel(binaryMessenger, "fluttershare")
         channel?.setMethodCallHandler(this)
     }
@@ -95,11 +99,19 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             val text = call.argument<String>("text")
             val image = call.argument<String>("image")
 
-            Log.e("platform", "$platform")
+            Log.d("platform", "$platform")
             if (platform == "SharePlatform.Line") {
+                if (!checkPackageExist(contextRef?.get(), "jp.naver.line.android")) {
+                    Toast.makeText(contextRef?.get(), "請先安裝Line", Toast.LENGTH_SHORT).show()
+                    return
+                }
                 shareToLine(text, image)
             }
             if (platform == "SharePlatform.Facebook") {
+                if (!checkPackageExist(contextRef?.get(), "com.facebook.katana")) {
+                    Toast.makeText(contextRef?.get(), "請先安裝Facebook", Toast.LENGTH_SHORT).show()
+                    return
+                }
                 shareToFacebook(text, image)
             }
         } else {
@@ -112,6 +124,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     override fun onDetachedFromActivity() {
+        contextRef?.clear()
         activityRef?.clear()
     }
 
@@ -140,7 +153,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         shareDialog = ShareDialog(activity)
         shareDialog?.registerCallback(callbackManager, object : FacebookCallback<Sharer.Result> {
             override fun onSuccess(result: Sharer.Result?) {
-                Log.e("shareInit", "onSuccess: $result")
+                Log.d("shareInit", "onSuccess: $result")
                 val map = HashMap<String, Any>()
                 map["state"] = 0
                 map["msg"] = result.toString()
@@ -150,7 +163,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             }
 
             override fun onCancel() {
-                Log.e("shareInit", "onCancel: ")
+                Log.d("shareInit", "onCancel: ")
                 val map = HashMap<String, Any>()
                 map["state"] = 2
                 map["msg"] = "Cancel"
@@ -172,6 +185,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private fun shareToLine(text: String?, image: String?) {
+        Log.d(TAG, "shareToLine =>  text: $text == image: $image")
         val map = HashMap<String, Any>()
         map["state"] = 0
         map["msg"] = "success"
@@ -191,6 +205,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private fun shareToFacebook(text: String?, image: String?) {
+        Log.d(TAG, "shareToFacebook =>  text: $text == image: $image")
         if (!text.isNullOrEmpty()) {
             shareTextFacebook(text)
             return
@@ -198,7 +213,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
         if (image?.startsWith("http") == true) {
             val bitmap = getBitmapFromUrl(activityRef?.get(), image)
-            Log.e("bitmap", "$bitmap")
+            Log.d("bitmap", "$bitmap")
             return
         }
 
@@ -253,7 +268,9 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
     /************************ Facebook 分享 ************************/
     private fun shareTextFacebook(text: String) {
+        Log.d(TAG, "shareTextFacebook 1")
         if (ShareDialog.canShow(ShareLinkContent::class.java)) {
+            Log.d(TAG, "shareTextFacebook 2")
             val linkContent = ShareLinkContent.Builder()
                 .setContentUrl(Uri.parse(text))
                 .build()
@@ -262,7 +279,9 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     private fun shareImageFacebook(bitmap: Bitmap?) {
+        Log.d(TAG, "shareImageFacebook 1")
         if (ShareDialog.canShow(SharePhotoContent::class.java)) {
+            Log.d(TAG, "shareImageFacebook 2")
             val photo = SharePhoto.Builder()
                 .setBitmap(bitmap)
                 .build()
@@ -427,5 +446,15 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         // Store the compressed data in ByteArrayInputStream
         val bitmapInputStream = ByteArrayInputStream(bios.toByteArray())
         return BitmapFactory.decodeStream(bitmapInputStream, null, null)
+    }
+
+    private fun checkPackageExist(context: Context?, packageName: String): Boolean {
+        if (packageName.isEmpty() || context == null) return false
+        return try {
+            val packageInfo = context.packageManager.getPackageInfo(packageName, 0)
+            packageInfo != null
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
     }
 }
