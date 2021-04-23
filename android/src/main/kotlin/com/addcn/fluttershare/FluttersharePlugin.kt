@@ -1,12 +1,10 @@
 package com.addcn.fluttershare
 
 import android.app.Activity
-import android.content.ComponentName
-import android.content.ContentUris
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -226,44 +224,40 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private val linePackageName: String = "jp.naver.line.android"
     private val lineOldClass: String = "jp.naver.line.android.activity.selectchat.SelectChatActivity"
-    private val lineNewClass: String = "jp.naver.line.android.activity.selectchat.SelectChatActivityLaunchActivity"
-
-    private fun getLineComponent(activity: Activity?): ComponentName {
-        var isOlderVersion = false
-        try {
-            val packageInfo: PackageInfo? = activity?.packageManager?.getPackageInfo(linePackageName, 0)
-            packageInfo?.let {
-                val packageList = packageInfo.versionName.split("\\.")
-                if (packageList.isNotEmpty())
-                    isOlderVersion = (packageList[0].split(".")[0].toInt() < 8)
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-            return ComponentName(linePackageName, lineNewClass)
-        }
-        if (isOlderVersion) return ComponentName(linePackageName, lineOldClass)
-        return ComponentName(linePackageName, lineNewClass)
-    }
+    private val lineOldClass2: String = "jp.naver.line.android.activity.selectchat.SelectChatActivityLaunchActivity"
+    private val lineNewClass: String = "com.linecorp.line.share.common.view.FullPickerLaunchActivity"
+    private val lineClassList: List<String> = listOf(lineNewClass, lineOldClass2, lineOldClass)
 
     private fun shareTextLine(activity: Activity?, text: String?) {
+        if (activity == null) return
         val intent = Intent()
-        intent.component = getLineComponent(activity)
         intent.action = Intent.ACTION_SEND
         intent.type = "text/plain"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(Intent.EXTRA_TEXT, text)
-        if (activity == null || intent.resolveActivity(activity.packageManager) == null) return
-        activity.startActivity(intent)
+        for (lineClass in lineClassList) {
+            intent.component = ComponentName(linePackageName, lineClass)
+            if (activity.packageManager.resolveActivity(intent, 0) != null) {
+                activity.startActivity(intent)
+                return
+            }
+        }
     }
 
     private fun shareImageLine(activity: Activity?, uri: Uri?) {
+        if (activity == null) return
         val intent = Intent()
-        intent.component = getLineComponent(activity)
         intent.action = Intent.ACTION_SEND
         intent.type = "image/*"
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         intent.putExtra(Intent.EXTRA_STREAM, uri)
-        if (activity == null || intent.resolveActivity(activity.packageManager) == null) return
-        activity.startActivity(intent)
+        for (lineClass in lineClassList) {
+            intent.component = ComponentName(linePackageName, lineClass)
+            if (activity.packageManager.resolveActivity(intent, 0) != null) {
+                activity.startActivity(intent)
+                return
+            }
+        }
     }
 
     /************************ Facebook 分享 ************************/
@@ -294,7 +288,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
     /************************ 获取图片相关方法 ************************/
 
-// 图片 url 转 Uri
+    // 图片 url 转 Uri
     private fun getUriFromUrl(activity: Activity?, url: String): Uri {
         val file = File.createTempFile("temp_", ".png", activity?.cacheDir)
         val runnable = Runnable {
@@ -362,6 +356,35 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
             }
         }
         Thread(runnable).start()
+    }
+
+    // 图片 url 转 图片路径
+    private fun getPathFromUrl(activity: Activity?, url: String): String {
+        val file = File.createTempFile("temp_", ".png", activity?.cacheDir)
+        val runnable = Runnable {
+            run {
+                try {
+                    val imageUrl = URL(url)
+                    val conn = imageUrl.openConnection()
+                    conn.connectTimeout = 5000
+                    conn.doInput = true
+                    conn.connect()
+                    val inputStream = conn.getInputStream()
+                    val fos = FileOutputStream(file)
+                    val buffer = ByteArray(1024)
+                    var len = 0
+                    while (inputStream.read(buffer).also { len = it } != -1) {
+                        fos.write(buffer, 0, len)
+                    }
+                    inputStream.close()
+                    fos.close()
+                } catch (e: IOException) {
+                }
+            }
+        }
+        Thread(runnable).start()
+        Log.e("==", "$file")
+        return file.absolutePath
     }
 
     // 图片 路径 转 Uri
