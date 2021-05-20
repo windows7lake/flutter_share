@@ -26,8 +26,8 @@ class _MyAppState extends State<MyApp> {
             onPressed: () {
               FlutterShare.share(
                 ShareModel(
-                  platform: SharePlatform.Line,
-                  text: "https://www.100.com.tw/",
+                  platform: SharePlatform.Facebook,
+                  // text: "https://www.100.com.tw/",
                   image: "https://www.baidu.com/img/bd_logo1.png",
 //                  image:
 //                  "https://cp4.100.com.tw/images/works/202004/15/api_1912317_1586915223_7O9RQuMFAV.jpg!c290x290-v2.webp",
