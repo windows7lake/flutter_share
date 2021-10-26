@@ -1,18 +1,22 @@
 package com.addcn.fluttershare
 
 import android.app.Activity
-import android.content.*
-import android.content.pm.PackageInfo
+import android.content.ComponentName
+import android.content.ContentUris
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Point
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
+import android.webkit.*
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -34,6 +38,13 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import java.io.*
 import java.lang.ref.WeakReference
 import java.net.URL
+import android.widget.FrameLayout
+
+import android.view.Display
+
+
+
+
 
 const val TAG: String = "FlutterSharePlugin"
 
@@ -99,17 +110,9 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
             Log.d("platform", "$platform")
             if (platform == "SharePlatform.Line") {
-                if (!checkPackageExist(contextRef?.get(), "jp.naver.line.android")) {
-                    Toast.makeText(contextRef?.get(), "請先安裝Line", Toast.LENGTH_SHORT).show()
-                    return
-                }
                 shareToLine(text, image)
             }
             if (platform == "SharePlatform.Facebook") {
-                if (!checkPackageExist(contextRef?.get(), "com.facebook.katana")) {
-                    Toast.makeText(contextRef?.get(), "請先安裝Facebook", Toast.LENGTH_SHORT).show()
-                    return
-                }
                 shareToFacebook(text, image)
             }
         } else {
@@ -188,6 +191,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         map["state"] = 0
         map["msg"] = "success"
         resultOutput?.success(map)
+
         if (!text.isNullOrEmpty()) {
             shareTextLine(activityRef?.get(), text)
             return
@@ -230,6 +234,14 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private fun shareTextLine(activity: Activity?, text: String?) {
         if (activity == null) return
+        if (!checkPackageExist(activity, "jp.naver.line.android")) {
+            val intent = Intent()
+            intent.setClass(activity, WebViewActivity::class.java)
+            intent.putExtra("text", "https://line.me/R/share?text=$text")
+            activity.startActivity(intent)
+            return
+        }
+
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         intent.type = "text/plain"
@@ -246,6 +258,14 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
     private fun shareImageLine(activity: Activity?, uri: Uri?) {
         if (activity == null) return
+        if (!checkPackageExist(activity, "jp.naver.line.android")) {
+            val intent = Intent()
+            intent.setClass(activity, WebViewActivity::class.java)
+            intent.putExtra("text", "https://line.me/R/share?text=$uri")
+            activity.startActivity(intent)
+            return
+        }
+
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         intent.type = "image/*"

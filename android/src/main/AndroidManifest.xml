@@ -5,6 +5,12 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        </intent>
+    </queries>
+
     <application>
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -16,6 +22,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_path" />
         </provider>
+        <activity android:name=".WebViewActivity"
+            android:launchMode="singleTask"/>
     </application>
 
 </manifest>
