@@ -41,9 +41,8 @@ import java.net.URL
 import android.widget.FrameLayout
 
 import android.view.Display
-
-
-
+import com.facebook.FacebookSdk
+import java.net.URLEncoder
 
 
 const val TAG: String = "FlutterSharePlugin"
@@ -209,7 +208,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     private fun shareToFacebook(text: String?, image: String?) {
         Log.d(TAG, "shareToFacebook =>  text: $text == image: $image")
         if (!text.isNullOrEmpty()) {
-            shareTextFacebook(text)
+            shareTextFacebook(activityRef?.get(), text)
             return
         }
 
@@ -221,7 +220,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
 
         val uri = getUriForFile(activityRef?.get(), File(image))
         val bitmap = getBitmapFromUri(activityRef?.get(), uri)
-        shareImageFacebook(bitmap)
+        shareImageFacebook(activityRef?.get(), bitmap, image)
     }
 
     /************************ Line 分享 ************************/
@@ -281,7 +280,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
     }
 
     /************************ Facebook 分享 ************************/
-    private fun shareTextFacebook(text: String) {
+    private fun shareTextFacebook(activity: Activity?, text: String) {
         Log.d(TAG, "shareTextFacebook 1")
         if (ShareDialog.canShow(ShareLinkContent::class.java)) {
             Log.d(TAG, "shareTextFacebook 2")
@@ -289,10 +288,17 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
                 .setContentUrl(Uri.parse(text))
                 .build()
             shareDialog?.show(linkContent)
+        } else {
+            if (activity == null) return
+            val intent = Intent()
+            intent.setClass(activity, WebViewActivity::class.java)
+            intent.putExtra("text", "https://www.facebook.com/sharer/sharer.php?u=$text")
+            activity.startActivity(intent)
+            return
         }
     }
 
-    private fun shareImageFacebook(bitmap: Bitmap?) {
+    private fun shareImageFacebook(activity: Activity?, bitmap: Bitmap?, url: String?) {
         Log.d(TAG, "shareImageFacebook 1")
         if (ShareDialog.canShow(SharePhotoContent::class.java)) {
             Log.d(TAG, "shareImageFacebook 2")
@@ -303,6 +309,14 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
                 .addPhoto(photo)
                 .build()
             shareDialog?.show(photoContent)
+        } else {
+            if (activity == null) return
+            val encodeUrl = URLEncoder.encode(url, "utf-8")
+            val intent = Intent()
+            intent.setClass(activity, WebViewActivity::class.java)
+            intent.putExtra("text", "https://www.facebook.com/sharer/sharer.php?u=$encodeUrl")
+            activity.startActivity(intent)
+            return
         }
     }
 
@@ -372,7 +386,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
                 } catch (e: IOException) {
                     bitmap = null
                 }
-                shareImageFacebook(bitmap)
+                shareImageFacebook(activity, bitmap, url)
             }
         }
         Thread(runnable).start()
