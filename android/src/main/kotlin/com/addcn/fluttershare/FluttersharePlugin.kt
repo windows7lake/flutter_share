@@ -152,7 +152,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         callbackManager = CallbackManager.Factory.create()
         shareDialog = ShareDialog(activity)
         shareDialog?.registerCallback(callbackManager, object : FacebookCallback<Sharer.Result> {
-            override fun onSuccess(result: Sharer.Result?) {
+            override fun onSuccess(result: Sharer.Result) {
                 Log.d("shareInit", "onSuccess: $result")
                 val map = HashMap<String, Any>()
                 map["state"] = 0
@@ -172,7 +172,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
                 }
             }
 
-            override fun onError(error: FacebookException?) {
+            override fun onError(error: FacebookException) {
                 Log.e("shareInit", "onError: $error")
                 val map = HashMap<String, Any>()
                 map["state"] = 1
