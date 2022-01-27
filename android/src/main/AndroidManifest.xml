@@ -13,7 +13,7 @@
 
     <application>
         <provider
-            android:name="androidx.core.content.FileProvider"
+            android:name=".ShareFileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"

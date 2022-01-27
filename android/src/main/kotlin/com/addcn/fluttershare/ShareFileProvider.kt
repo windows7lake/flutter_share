@@ -1,4 +1,5 @@
 package com.addcn.fluttershare
 
-class ShareFileProvider {
-}
+import androidx.core.content.FileProvider
+
+class ShareFileProvider: FileProvider()
