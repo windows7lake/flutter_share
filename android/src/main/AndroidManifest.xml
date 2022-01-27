@@ -14,10 +14,9 @@
     <application>
         <provider
             android:name=".ShareFileProvider"
-            android:authorities="${applicationId}.fileprovider"
+            android:authorities="${applicationId}.share.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            tools:replace="android:authorities">
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_path" />
