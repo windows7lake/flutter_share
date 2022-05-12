@@ -85,7 +85,7 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         }
     }
 
-    private fun setActivity(flutterActivity: Activity) {
+    private fun setActivity(flutterActivity: Activity?) {
         activityRef = WeakReference<Activity>(flutterActivity)
     }
 
@@ -432,9 +432,10 @@ public class FluttersharePlugin : FlutterPlugin, MethodCallHandler, ActivityAwar
         )
         var uri: Uri = Uri.EMPTY
         if (cursor?.moveToFirst() == true) {
+            val columnId = cursor.getColumnIndex(MediaStore.Images.Media._ID);
             uri = ContentUris.withAppendedId(
                 mediaUri,
-                cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media._ID))
+                cursor.getLong(if (columnId >= 0) columnId else 0)
             )
         }
         cursor?.close()
